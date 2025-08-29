@@ -1,0 +1,186 @@
+<div class="reservations-container">
+  <!-- Header com Stats -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <span class="title-icon">📅</span>
+        Reservas
+      </h1>
+      <p class="page-subtitle">Gerencie todas as reservas do restaurante</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon total">📊</div>
+        <div class="stat-content">
+          <span class="stat-number">{{totalReservations}}</span>
+          <span class="stat-label">Total</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon today">📆</div>
+        <div class="stat-content">
+          <span class="stat-number">{{todayReservations}}</span>
+          <span class="stat-label">Hoje</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon arrived">🎯</div>
+        <div class="stat-content">
+          <span class="stat-number">{{arrivedReservations}}</span>
+          <span class="stat-label">Chegaram</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon confirmed">✅</div>
+        <div class="stat-content">
+          <span class="stat-number">{{confirmedReservations}}</span>
+          <span class="stat-label">Confirmadas</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-section">
+    <div class="filters-grid">
+      <!-- Busca -->
+      <div class="filter-group">
+        <label class="filter-label">🔍 Buscar</label>
+        <input
+          type="text"
+          class="filter-input"
+          placeholder="Nome, email ou telefone..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+        >
+      </div>
+
+      <!-- Filtro por Data -->
+      <div class="filter-group">
+        <label class="filter-label">📅 Data</label>
+        <input
+          type="date"
+          class="filter-input"
+          [(ngModel)]="filterDate"
+          (change)="onFilterChange()"
+        >
+      </div>
+
+      <!-- Filtro por Status -->
+      <div class="filter-group">
+        <label class="filter-label">🏷️ Status</label>
+        <select
+          class="filter-select"
+          [(ngModel)]="filterStatus"
+          (change)="onFilterChange()"
+        >
+          <option value="">Todos</option>
+          <option value="confirmed">Confirmada</option>
+          <option value="arrived">Cliente Chegou</option>
+          <option value="cancelled">Cancelada</option>
+        </select>
+      </div>
+
+      <!-- Limpar Filtros -->
+      <div class="filter-group">
+        <button class="clear-filters-btn" (click)="clearFilters()">
+          🗑️ Limpar Filtros
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de Reservas -->
+  <div class="reservations-list">
+    <div
+      *ngFor="let reservation of filteredReservations; trackBy: trackByReservationId"
+      class="reservation-card"
+      [attr.data-status]="reservation.status"
+    >
+      <!-- Header do Card -->
+      <div class="card-header">
+        <div class="customer-info">
+          <h3 class="customer-name">{{reservation.customerName}}</h3>
+          <div class="contact-info">
+            <span class="email">📧 {{reservation.email}}</span>
+            <span class="phone">📱 {{reservation.phone}}</span>
+          </div>
+        </div>
+
+        <div class="status-badge" [style.background-color]="getStatusColor(reservation.status)">
+          {{getStatusText(reservation.status)}}
+        </div>
+      </div>
+
+      <!-- Detalhes da Reserva -->
+      <div class="card-body">
+        <div class="reservation-details">
+          <div class="detail-item">
+            <span class="detail-icon">📅</span>
+            <span class="detail-label">Data:</span>
+            <span class="detail-value">{{reservation.date | date:'dd/MM/yyyy'}}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-icon">🕐</span>
+            <span class="detail-label">Horário:</span>
+            <span class="detail-value">{{reservation.time}}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-icon">👥</span>
+            <span class="detail-label">Pessoas:</span>
+            <span class="detail-value">{{reservation.guests}}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-icon">🪑</span>
+            <span class="detail-label">Mesa:</span>
+            <span class="detail-value">{{reservation.table}}</span>
+          </div>
+        </div>
+
+        <div class="notes-section" *ngIf="reservation.notes">
+          <span class="notes-label">📝 Observações:</span>
+          <p class="notes-text">{{reservation.notes}}</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="card-actions">
+        <button
+          *ngIf="reservation.status === 'confirmed'"
+          class="action-btn arrived"
+          (click)="markAsArrived(reservation)"
+        >
+          🎯 Cliente Chegou
+        </button>
+
+        <button
+          *ngIf="reservation.status !== 'cancelled' && reservation.status !== 'arrived'"
+          class="action-btn cancel"
+          (click)="cancelReservation(reservation)"
+        >
+          ❌ Cancelar
+        </button>
+
+        <div class="created-info">
+          <span class="created-label">Criado em:</span>
+          <span class="created-date">{{reservation.createdAt}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredReservations.length === 0" class="empty-state">
+      <div class="empty-icon">🍽️</div>
+      <h3 class="empty-title">Nenhuma reserva encontrada</h3>
+      <p class="empty-message">Ajuste os filtros ou aguarde novas reservas</p>
+    </div>
+  </div>
+</div>

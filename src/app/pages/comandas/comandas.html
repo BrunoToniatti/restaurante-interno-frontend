@@ -1,0 +1,242 @@
+<div class="comandas-container">
+  <!-- Header com estatísticas -->
+  <div class="comandas-header">
+    <h1>📋 Sistema de Comandas</h1>
+    <div class="stats-grid">
+      <div class="stat-card open">
+        <div class="stat-icon">🟢</div>
+        <div class="stat-content">
+          <h3>Comandas Abertas</h3>
+          <p class="stat-value">{{ stats.openComandas }}</p>
+        </div>
+      </div>
+      <div class="stat-card revenue">
+        <div class="stat-icon">💰</div>
+        <div class="stat-content">
+          <h3>Receita Total</h3>
+          <p class="stat-value">{{ stats.totalRevenue | currency:'BRL':'symbol':'1.2-2' }}</p>
+        </div>
+      </div>
+      <div class="stat-card ticket">
+        <div class="stat-icon">🎫</div>
+        <div class="stat-content">
+          <h3>Ticket Médio</h3>
+          <p class="stat-value">{{ stats.averageTicket | currency:'BRL':'symbol':'1.2-2' }}</p>
+        </div>
+      </div>
+      <div class="stat-card items">
+        <div class="stat-icon">🍽️</div>
+        <div class="stat-content">
+          <h3>Total de Itens</h3>
+          <p class="stat-value">{{ stats.totalItems }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controles e filtros -->
+  <div class="controls-section">
+    <div class="filters">
+      <select [(ngModel)]="selectedTable" class="filter-select">
+        <option [ngValue]="null">Todas as Mesas</option>
+        <option *ngFor="let table of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]" [value]="table">
+          Mesa {{ table }}
+        </option>
+      </select>
+
+      <select [(ngModel)]="selectedWaiter" class="filter-select">
+        <option value="">Todos os Garçons</option>
+        <option *ngFor="let waiter of waiters" [value]="waiter">{{ waiter }}</option>
+      </select>
+
+      <select [(ngModel)]="filterStatus" class="filter-select">
+        <option value="todas">Todos os Status</option>
+        <option value="aberta">Abertas</option>
+        <option value="fechada">Fechadas</option>
+        <option value="paga">Pagas</option>
+      </select>
+    </div>
+
+    <button class="new-comanda-btn" (click)="openNewComandaModal()">
+      ➕ Nova Comanda
+    </button>
+  </div>
+
+  <!-- Status dos pedidos na cozinha -->
+  <div class="kitchen-status">
+    <h3>📊 Status da Cozinha</h3>
+    <div class="kitchen-stats">
+      <div class="kitchen-stat pedido">
+        <span class="status-icon">📝</span>
+        <span class="status-count">{{ getTotalItemsByStatus('pedido') }}</span>
+        <span class="status-label">Pedidos</span>
+      </div>
+      <div class="kitchen-stat preparando">
+        <span class="status-icon">👨‍🍳</span>
+        <span class="status-count">{{ getTotalItemsByStatus('preparando') }}</span>
+        <span class="status-label">Preparando</span>
+      </div>
+      <div class="kitchen-stat pronto">
+        <span class="status-icon">✅</span>
+        <span class="status-count">{{ getTotalItemsByStatus('pronto') }}</span>
+        <span class="status-label">Prontos</span>
+      </div>
+      <div class="kitchen-stat entregue">
+        <span class="status-icon">🍽️</span>
+        <span class="status-count">{{ getTotalItemsByStatus('entregue') }}</span>
+        <span class="status-label">Entregues</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de comandas -->
+  <div class="comandas-grid">
+    <div *ngFor="let comanda of getFilteredComandas()" class="comanda-card"
+         [class]="'status-' + comanda.status">
+      <div class="comanda-header">
+        <div class="comanda-info">
+          <h3>Mesa {{ comanda.tableNumber }}</h3>
+          <p class="customer-name">{{ comanda.customerName }}</p>
+          <p class="waiter-name">Garçom: {{ comanda.waiterName }}</p>
+        </div>
+        <div class="comanda-status">
+          <span class="status-badge" [style.background-color]="getStatusColor(comanda.status)">
+            {{ getStatusIcon(comanda.status) }} {{ comanda.status | titlecase }}
+          </span>
+          <p class="open-time">{{ comanda.openTime | date:'HH:mm' }}</p>
+        </div>
+      </div>
+
+      <div class="comanda-items">
+        <div *ngFor="let item of comanda.items" class="item-row">
+          <div class="item-info">
+            <h4>{{ item.dishName }}</h4>
+            <p class="item-details">
+              Qtd: {{ item.quantity }} |
+              {{ item.unitPrice | currency:'BRL':'symbol':'1.2-2' }} |
+              Total: {{ item.totalPrice | currency:'BRL':'symbol':'1.2-2' }}
+            </p>
+            <p *ngIf="item.observations" class="item-obs">💬 {{ item.observations }}</p>
+          </div>
+          <div class="item-status">
+            <select [(ngModel)]="item.status"
+                    (change)="updateItemStatus(comanda, item.id, item.status)"
+                    class="status-select"
+                    [style.background-color]="getStatusColor(item.status)">
+              <option value="pedido">📝 Pedido</option>
+              <option value="preparando">👨‍🍳 Preparando</option>
+              <option value="pronto">✅ Pronto</option>
+              <option value="entregue">🍽️ Entregue</option>
+            </select>
+            <button class="remove-item-btn" (click)="removeItem(comanda, item.id)">🗑️</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="comanda-footer">
+        <div class="total-amount">
+          <strong>Total: {{ comanda.totalAmount | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+        <div class="comanda-actions">
+          <button *ngIf="comanda.status === 'aberta'"
+                  class="add-item-btn"
+                  (click)="openAddItemModal(comanda)">
+            ➕ Adicionar Item
+          </button>
+          <button *ngIf="comanda.status === 'aberta'"
+                  class="close-comanda-btn"
+                  (click)="closeComanda(comanda)">
+            🔒 Fechar Comanda
+          </button>
+          <button *ngIf="comanda.status === 'fechada'"
+                  class="pay-btn"
+                  (click)="markAsPaid(comanda)">
+            💰 Marcar como Pago
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nova Comanda -->
+  <div *ngIf="showNewComandaModal" class="modal-overlay" (click)="closeNewComandaModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>🆕 Nova Comanda</h2>
+        <button class="close-btn" (click)="closeNewComandaModal()">✖️</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Mesa:</label>
+          <select [(ngModel)]="newComanda.tableNumber" required>
+            <option [ngValue]="null">Selecionar Mesa</option>
+            <option *ngFor="let table of getAvailableTables()" [value]="table">
+              Mesa {{ table }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Garçom:</label>
+          <select [(ngModel)]="newComanda.waiterName" required>
+            <option value="">Selecionar Garçom</option>
+            <option *ngFor="let waiter of waiters" [value]="waiter">{{ waiter }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nome do Cliente:</label>
+          <input type="text" [(ngModel)]="newComanda.customerName"
+                 placeholder="Nome do cliente" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="cancel-btn" (click)="closeNewComandaModal()">Cancelar</button>
+        <button class="save-btn" (click)="createComanda()"
+                [disabled]="!newComanda.tableNumber || !newComanda.waiterName || !newComanda.customerName">
+          Criar Comanda
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Adicionar Item -->
+  <div *ngIf="showAddItemModal" class="modal-overlay" (click)="closeAddItemModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>🍽️ Adicionar Item - Mesa {{ selectedComanda?.tableNumber }}</h2>
+        <button class="close-btn" (click)="closeAddItemModal()">✖️</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Prato:</label>
+          <select [(ngModel)]="newItem.dishName" required>
+            <option value="">Selecionar Prato</option>
+            <optgroup *ngFor="let category of ['Entradas', 'Pratos Principais', 'Sobremesas', 'Bebidas', 'Vinhos']"
+                      [label]="category">
+              <option *ngFor="let item of getMenuItemsByCategory(category)"
+                      [value]="item.name">
+                {{ item.name }} - {{ item.price | currency:'BRL':'symbol':'1.2-2' }}
+              </option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Quantidade:</label>
+          <input type="number" [(ngModel)]="newItem.quantity" min="1" max="10" required>
+        </div>
+        <div class="form-group">
+          <label>Observações:</label>
+          <textarea [(ngModel)]="newItem.observations"
+                    placeholder="Observações especiais (opcional)"
+                    rows="3"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="cancel-btn" (click)="closeAddItemModal()">Cancelar</button>
+        <button class="save-btn" (click)="addItemToComanda()"
+                [disabled]="!newItem.dishName || !newItem.quantity">
+          Adicionar Item
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

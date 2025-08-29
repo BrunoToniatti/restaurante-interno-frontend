@@ -1,0 +1,438 @@
+<div class="management-container">
+  <!-- Header com Stats -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <span class="title-icon">🪑</span>
+        Gestão de Mesas
+      </h1>
+      <p class="page-subtitle">Gerencie o layout e disponibilidade das mesas do restaurante</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon total">📊</div>
+        <div class="stat-content">
+          <span class="stat-number">{{totalTables}}</span>
+          <span class="stat-label">Total de Mesas</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon available">✅</div>
+        <div class="stat-content">
+          <span class="stat-number">{{availableTables}}</span>
+          <span class="stat-label">Disponíveis</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon occupied">🔴</div>
+        <div class="stat-content">
+          <span class="stat-number">{{occupiedTables}}</span>
+          <span class="stat-label">Ocupadas</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon capacity">👥</div>
+        <div class="stat-content">
+          <span class="stat-number">{{totalCapacity}}</span>
+          <span class="stat-label">Capacidade Total</span>
+        </div>
+      </div>
+
+      <div class="stat-card add-new" (click)="openModal()">
+        <div class="stat-icon new">➕</div>
+        <div class="stat-content">
+          <span class="stat-label">Nova Mesa</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-section">
+    <div class="filters-grid">
+      <!-- Busca -->
+      <div class="filter-group">
+        <label class="filter-label">🔍 Buscar</label>
+        <input
+          type="text"
+          class="filter-input"
+          placeholder="Número da mesa ou descrição..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+        >
+      </div>
+
+      <!-- Filtro por Local -->
+      <div class="filter-group">
+        <label class="filter-label">📍 Local</label>
+        <select
+          class="filter-select"
+          [(ngModel)]="filterLocation"
+          (change)="onFilterChange()"
+        >
+          <option value="">Todos os Locais</option>
+          <option *ngFor="let location of locations" [value]="location">{{location}}</option>
+        </select>
+      </div>
+
+      <!-- Filtro por Status -->
+      <div class="filter-group">
+        <label class="filter-label">🏷️ Status</label>
+        <select
+          class="filter-select"
+          [(ngModel)]="filterStatus"
+          (change)="onFilterChange()"
+        >
+          <option value="">Todos os Status</option>
+          <option value="available">Disponível</option>
+          <option value="occupied">Ocupada</option>
+          <option value="reserved">Reservada</option>
+          <option value="maintenance">Manutenção</option>
+        </select>
+      </div>
+
+      <!-- Filtro por Capacidade -->
+      <div class="filter-group">
+        <label class="filter-label">👥 Capacidade</label>
+        <select
+          class="filter-select"
+          [(ngModel)]="filterCapacity"
+          (change)="onFilterChange()"
+        >
+          <option value="">Todas</option>
+          <option *ngFor="let range of capacityRanges" [value]="range">{{range}} pessoas</option>
+        </select>
+      </div>
+
+      <!-- Limpar Filtros -->
+      <div class="filter-group">
+        <button class="clear-filters-btn" (click)="clearFilters()">
+          🗑️ Limpar Filtros
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layout Visual das Mesas -->
+  <div class="restaurant-layout">
+    <h2 class="layout-title">
+      <span class="layout-icon">🏪</span>
+      Layout do Restaurante
+    </h2>
+
+    <div class="layout-grid">
+      <div
+        *ngFor="let table of filteredTables; trackBy: trackByTableId"
+        class="table-visual"
+        [attr.data-status]="table.status"
+        [attr.data-shape]="table.shape"
+        [class.vip]="table.isVip"
+        (click)="openModal(table)"
+      >
+        <!-- Forma da Mesa -->
+        <div class="table-shape">
+          <span class="shape-icon">{{getShapeIcon(table.shape)}}</span>
+        </div>
+
+        <!-- Informações da Mesa -->
+        <div class="table-info">
+          <div class="table-number">{{table.number}}</div>
+          <div class="table-capacity">{{table.capacity}} pessoas</div>
+          <div class="table-location">{{table.location}}</div>
+        </div>
+
+        <!-- Status Badge -->
+        <div class="table-status" [style.background-color]="getStatusColor(table.status)">
+          {{getStatusText(table.status)}}
+        </div>
+
+        <!-- Badges Especiais -->
+        <div class="table-badges">
+          <span *ngIf="table.isVip" class="badge vip">👑 VIP</span>
+          <span *ngIf="table.hasView" class="badge view">🌅 Vista</span>
+        </div>
+
+        <!-- Ações Rápidas -->
+        <div class="table-actions">
+          <button
+            *ngIf="table.status === 'available'"
+            class="quick-action occupy"
+            (click)="$event.stopPropagation(); changeTableStatus(table, 'occupied')"
+            title="Marcar como Ocupada"
+          >
+            🔴
+          </button>
+
+          <button
+            *ngIf="table.status === 'occupied'"
+            class="quick-action free"
+            (click)="$event.stopPropagation(); changeTableStatus(table, 'available')"
+            title="Liberar Mesa"
+          >
+            ✅
+          </button>
+
+          <button
+            *ngIf="table.status === 'available'"
+            class="quick-action reserve"
+            (click)="$event.stopPropagation(); changeTableStatus(table, 'reserved')"
+            title="Reservar Mesa"
+          >
+            📅
+          </button>
+
+          <button
+            class="quick-action edit"
+            (click)="$event.stopPropagation(); openModal(table)"
+            title="Editar Mesa"
+          >
+            ✏️
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredTables.length === 0" class="empty-state">
+      <div class="empty-icon">🪑</div>
+      <h3 class="empty-title">Nenhuma mesa encontrada</h3>
+      <p class="empty-message">Ajuste os filtros ou cadastre novas mesas</p>
+      <button class="add-table-btn" (click)="openModal()">
+        ➕ Adicionar Primeira Mesa
+      </button>
+    </div>
+  </div>
+
+  <!-- Lista Detalhada (alternativa ao layout visual) -->
+  <div class="tables-list">
+    <h2 class="list-title">
+      <span class="list-icon">📋</span>
+      Lista Detalhada de Mesas
+    </h2>
+
+    <div class="table-cards">
+      <div
+        *ngFor="let table of filteredTables; trackBy: trackByTableId"
+        class="table-card"
+        [attr.data-status]="table.status"
+      >
+        <!-- Header do Card -->
+        <div class="card-header">
+          <div class="table-main-info">
+            <h3 class="table-name">{{table.number}}</h3>
+            <div class="table-details">
+              <span class="detail">{{getShapeIcon(table.shape)}} {{getShapeText(table.shape)}}</span>
+              <span class="detail">👥 {{table.capacity}} pessoas</span>
+              <span class="detail">📍 {{table.location}}</span>
+            </div>
+          </div>
+
+          <div class="status-badge" [style.background-color]="getStatusColor(table.status)">
+            {{getStatusText(table.status)}}
+          </div>
+        </div>
+
+        <!-- Corpo do Card -->
+        <div class="card-body">
+          <p class="table-description" *ngIf="table.description">{{table.description}}</p>
+
+          <div class="table-features">
+            <span *ngIf="table.isVip" class="feature vip">👑 Mesa VIP</span>
+            <span *ngIf="table.hasView" class="feature view">🌅 Com Vista</span>
+          </div>
+
+          <div class="table-meta">
+            <span class="meta-item">Criado: {{table.createdAt}}</span>
+            <span class="meta-item">Atualizado: {{table.updatedAt}}</span>
+          </div>
+        </div>
+
+        <!-- Ações do Card -->
+        <div class="card-actions">
+          <div class="status-actions">
+            <button
+              *ngIf="table.status !== 'available'"
+              class="status-btn available"
+              (click)="changeTableStatus(table, 'available')"
+            >
+              ✅ Liberar
+            </button>
+
+            <button
+              *ngIf="table.status !== 'occupied'"
+              class="status-btn occupied"
+              (click)="changeTableStatus(table, 'occupied')"
+            >
+              🔴 Ocupar
+            </button>
+
+            <button
+              *ngIf="table.status !== 'reserved'"
+              class="status-btn reserved"
+              (click)="changeTableStatus(table, 'reserved')"
+            >
+              📅 Reservar
+            </button>
+
+            <button
+              *ngIf="table.status !== 'maintenance'"
+              class="status-btn maintenance"
+              (click)="changeTableStatus(table, 'maintenance')"
+            >
+              🔧 Manutenção
+            </button>
+          </div>
+
+          <div class="main-actions">
+            <button class="action-btn edit" (click)="openModal(table)">
+              ✏️ Editar
+            </button>
+            <button class="action-btn delete" (click)="deleteTable(table)">
+              🗑️ Excluir
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Criar/Editar Mesa -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{isEditing ? 'Editar Mesa' : 'Nova Mesa'}}</h2>
+        <button class="close-btn" (click)="closeModal()">✕</button>
+      </div>
+
+      <form class="table-form" (ngSubmit)="saveTable()">
+        <div class="form-row">
+          <div class="form-group">
+            <label>🪑 Número/Nome da Mesa</label>
+            <input
+              type="text"
+              [(ngModel)]="currentTable.number"
+              name="number"
+              placeholder="Ex: Mesa 01, Mesa VIP 01"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label>👥 Capacidade (pessoas)</label>
+            <input
+              type="number"
+              [(ngModel)]="currentTable.capacity"
+              name="capacity"
+              min="1"
+              max="20"
+              required
+            >
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>📍 Localização</label>
+            <select [(ngModel)]="currentTable.location" name="location" required>
+              <option value="">Selecione um local</option>
+              <option *ngFor="let location of locations" [value]="location">{{location}}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>🏷️ Status Inicial</label>
+            <select [(ngModel)]="currentTable.status" name="status" required>
+              <option value="available">Disponível</option>
+              <option value="occupied">Ocupada</option>
+              <option value="reserved">Reservada</option>
+              <option value="maintenance">Manutenção</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>⭕ Formato da Mesa</label>
+          <div class="shape-options">
+            <label class="shape-option">
+              <input
+                type="radio"
+                [(ngModel)]="currentTable.shape"
+                name="shape"
+                value="round"
+              >
+              <span class="shape-preview">⭕ Redonda</span>
+            </label>
+
+            <label class="shape-option">
+              <input
+                type="radio"
+                [(ngModel)]="currentTable.shape"
+                name="shape"
+                value="square"
+              >
+              <span class="shape-preview">⬜ Quadrada</span>
+            </label>
+
+            <label class="shape-option">
+              <input
+                type="radio"
+                [(ngModel)]="currentTable.shape"
+                name="shape"
+                value="rectangular"
+              >
+              <span class="shape-preview">▬ Retangular</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>📋 Descrição</label>
+          <textarea
+            [(ngModel)]="currentTable.description"
+            name="description"
+            placeholder="Descrição adicional da mesa..."
+            rows="3"
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="currentTable.isVip"
+                name="isVip"
+              >
+              <span class="checkmark">👑 Mesa VIP</span>
+            </label>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="currentTable.hasView"
+                name="hasView"
+              >
+              <span class="checkmark">🌅 Mesa com Vista</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="cancel-btn" (click)="closeModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="save-btn">
+            {{isEditing ? 'Atualizar Mesa' : 'Criar Mesa'}}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

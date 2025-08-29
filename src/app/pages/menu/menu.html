@@ -1,0 +1,334 @@
+<div class="menu-container">
+  <!-- Header com Stats -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <span class="title-icon">🍽️</span>
+        Cardápio
+      </h1>
+      <p class="page-subtitle">Gerencie todos os pratos do seu restaurante</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon total">📊</div>
+        <div class="stat-content">
+          <span class="stat-number">{{totalDishes}}</span>
+          <span class="stat-label">Total de Pratos</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon available">✅</div>
+        <div class="stat-content">
+          <span class="stat-number">{{availableDishes}}</span>
+          <span class="stat-label">Disponíveis</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon vegan">🌱</div>
+        <div class="stat-content">
+          <span class="stat-number">{{veganDishes}}</span>
+          <span class="stat-label">Veganos</span>
+        </div>
+      </div>
+
+      <div class="stat-card add-new" (click)="openModal()">
+        <div class="stat-icon new">➕</div>
+        <div class="stat-content">
+          <span class="stat-label">Novo Prato</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-section">
+    <div class="filters-grid">
+      <!-- Busca -->
+      <div class="filter-group">
+        <label class="filter-label">🔍 Buscar</label>
+        <input
+          type="text"
+          class="filter-input"
+          placeholder="Nome ou descrição..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+        >
+      </div>
+
+      <!-- Filtro por Categoria -->
+      <div class="filter-group">
+        <label class="filter-label">🏷️ Categoria</label>
+        <select
+          class="filter-select"
+          [(ngModel)]="filterCategory"
+          (change)="onFilterChange()"
+        >
+          <option value="">Todas</option>
+          <option *ngFor="let category of categories" [value]="category">{{category}}</option>
+        </select>
+      </div>
+
+      <!-- Filtro Vegano -->
+      <div class="filter-group">
+        <label class="filter-label">🌱 Vegano</label>
+        <select
+          class="filter-select"
+          [(ngModel)]="filterVegan"
+          (change)="onFilterChange()"
+        >
+          <option value="">Todos</option>
+          <option value="vegan">Apenas Veganos</option>
+          <option value="non-vegan">Não Veganos</option>
+        </select>
+      </div>
+
+      <!-- Filtro Disponibilidade -->
+      <div class="filter-group">
+        <label class="filter-label">📋 Status</label>
+        <select
+          class="filter-select"
+          [(ngModel)]="filterAvailable"
+          (change)="onFilterChange()"
+        >
+          <option value="">Todos</option>
+          <option value="available">Disponíveis</option>
+          <option value="unavailable">Indisponíveis</option>
+        </select>
+      </div>
+
+      <!-- Limpar Filtros -->
+      <div class="filter-group">
+        <button class="clear-filters-btn" (click)="clearFilters()">
+          🗑️ Limpar Filtros
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de Pratos -->
+  <div class="dishes-grid">
+    <div
+      *ngFor="let dish of filteredDishes; trackBy: trackByDishId"
+      class="dish-card"
+      [class.unavailable]="!dish.isAvailable"
+    >
+      <!-- Imagem do Prato -->
+      <div class="dish-image">
+        <img [src]="dish.image" [alt]="dish.name" />
+        <div class="dish-badges">
+          <span *ngIf="dish.isVegan" class="badge vegan">🌱 Vegano</span>
+          <span *ngIf="!dish.isAvailable" class="badge unavailable">❌ Indisponível</span>
+        </div>
+        <div class="dish-actions-overlay">
+          <button class="action-btn edit" (click)="openModal(dish)" title="Editar">
+            ✏️
+          </button>
+          <button
+            class="action-btn toggle"
+            (click)="toggleAvailability(dish)"
+            [title]="dish.isAvailable ? 'Marcar como indisponível' : 'Marcar como disponível'"
+          >
+            {{dish.isAvailable ? '🚫' : '✅'}}
+          </button>
+          <button class="action-btn delete" (click)="deleteDish(dish)" title="Excluir">
+            🗑️
+          </button>
+        </div>
+      </div>
+
+      <!-- Informações do Prato -->
+      <div class="dish-info">
+        <div class="dish-header">
+          <h3 class="dish-name">{{dish.name}}</h3>
+          <span class="dish-category">{{dish.category}}</span>
+        </div>
+
+        <p class="dish-description">{{dish.description}}</p>
+
+        <div class="dish-details">
+          <div class="detail-item">
+            <span class="detail-icon">💰</span>
+            <span class="detail-value">R$ {{dish.price | number:'1.2-2'}}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-icon">⏱️</span>
+            <span class="detail-value">{{dish.preparationTime}}min</span>
+          </div>
+        </div>
+
+        <div class="ingredients-section" *ngIf="dish.ingredients.length > 0">
+          <span class="ingredients-label">🧄 Ingredientes:</span>
+          <div class="ingredients-list">
+            <span
+              *ngFor="let ingredient of dish.ingredients; let last = last"
+              class="ingredient"
+            >
+              {{ingredient}}<span *ngIf="!last">, </span>
+            </span>
+          </div>
+        </div>
+
+        <div class="dish-meta">
+          <span class="meta-item">Criado: {{dish.createdAt}}</span>
+          <span class="meta-item">Atualizado: {{dish.updatedAt}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredDishes.length === 0" class="empty-state">
+      <div class="empty-icon">🍽️</div>
+      <h3 class="empty-title">Nenhum prato encontrado</h3>
+      <p class="empty-message">Ajuste os filtros ou cadastre novos pratos</p>
+      <button class="add-dish-btn" (click)="openModal()">
+        ➕ Adicionar Primeiro Prato
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal para Criar/Editar Prato -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{isEditing ? 'Editar Prato' : 'Novo Prato'}}</h2>
+        <button class="close-btn" (click)="closeModal()">✕</button>
+      </div>
+
+      <form class="dish-form" (ngSubmit)="saveDish()">
+        <div class="form-row">
+          <div class="form-group">
+            <label>📝 Nome do Prato</label>
+            <input
+              type="text"
+              [(ngModel)]="currentDish.name"
+              name="name"
+              placeholder="Ex: Risotto de Cogumelos"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label>🏷️ Categoria</label>
+            <select [(ngModel)]="currentDish.category" name="category" required>
+              <option value="">Selecione uma categoria</option>
+              <option *ngFor="let category of categories" [value]="category">{{category}}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>📋 Descrição</label>
+          <textarea
+            [(ngModel)]="currentDish.description"
+            name="description"
+            placeholder="Descreva o prato de forma apetitosa..."
+            rows="3"
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>💰 Preço (R$)</label>
+            <input
+              type="number"
+              [(ngModel)]="currentDish.price"
+              name="price"
+              step="0.01"
+              min="0"
+              placeholder="0.00"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label>⏱️ Tempo de Preparo (min)</label>
+            <input
+              type="number"
+              [(ngModel)]="currentDish.preparationTime"
+              name="preparationTime"
+              min="0"
+              placeholder="20"
+              required
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>🖼️ URL da Imagem</label>
+          <input
+            type="url"
+            [(ngModel)]="currentDish.image"
+            name="image"
+            placeholder="https://example.com/imagem.jpg"
+            required
+          >
+          <div class="image-preview" *ngIf="currentDish.image">
+            <img [src]="currentDish.image" [alt]="currentDish.name" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>🧄 Ingredientes</label>
+          <div class="ingredients-input">
+            <div
+              *ngFor="let ingredient of currentDish.ingredients; let i = index"
+              class="ingredient-row"
+            >
+              <input
+                type="text"
+                [(ngModel)]="currentDish.ingredients[i]"
+                [name]="'ingredient_' + i"
+                placeholder="Ex: Arroz arbóreo"
+              >
+              <button type="button" class="remove-ingredient" (click)="removeIngredient(i)">
+                ❌
+              </button>
+            </div>
+            <button type="button" class="add-ingredient" (click)="addIngredient()">
+              ➕ Adicionar Ingrediente
+            </button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="currentDish.isVegan"
+                name="isVegan"
+              >
+              <span class="checkmark">🌱 Prato Vegano</span>
+            </label>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="currentDish.isAvailable"
+                name="isAvailable"
+              >
+              <span class="checkmark">✅ Disponível no Cardápio</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="cancel-btn" (click)="closeModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="save-btn">
+            {{isEditing ? 'Atualizar Prato' : 'Criar Prato'}}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

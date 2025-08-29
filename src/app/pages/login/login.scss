@@ -1,0 +1,518 @@
+// Variáveis temáticas do restaurante
+:host {
+  --primary-gold: #c9a876;
+  --secondary-brown: #8b4513;
+  --dark-brown: #2c1810;
+  --cream: #f8f6f3;
+  --white: #ffffff;
+  --gradient-gold: linear-gradient(135deg, var(--primary-gold), #d4b483);
+  --gradient-overlay: linear-gradient(135deg, rgba(44, 24, 16, 0.85), rgba(139, 69, 19, 0.7));
+  --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+$primary: #c9a876;
+$secondary: #d4b483;
+$accent: #8b4513;
+$background: #2c1810;
+$text-dark: #2c1810;
+$text-light: #ffffff;
+$cream: #f8f6f3;
+$shadow: 0 25px 50px -12px rgba(44, 24, 16, 0.4);
+$glow: 0 0 30px rgba(201, 168, 118, 0.3);
+
+.login-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: var(--dark-brown);
+  font-family: 'Inter', 'Playfair Display', sans-serif;
+  animation: fadeIn 1s ease-in-out;
+
+  // Background com imagem de restaurante
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1920&h=1080&fit=crop&crop=center') center/cover no-repeat;
+    z-index: 1;
+  }
+
+  // Overlay com gradiente temático
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-overlay);
+    z-index: 2;
+  }
+
+  // Partículas flutuantes douradas
+  .floating-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(201, 168, 118, 0.1) 2px, transparent 2px),
+      radial-gradient(circle at 80% 70%, rgba(212, 180, 131, 0.08) 1px, transparent 1px),
+      radial-gradient(circle at 40% 80%, rgba(201, 168, 118, 0.06) 3px, transparent 3px);
+    background-size: 80px 80px, 60px 60px, 120px 120px;
+    animation: floatingParticles 25s linear infinite;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  // Orbes animados
+  .animated-orbs {
+    position: absolute;
+    top: -30%;
+    left: -30%;
+    width: 160%;
+    height: 160%;
+    background:
+      radial-gradient(circle at 25% 25%, rgba(201, 168, 118, 0.12) 0%, transparent 40%),
+      radial-gradient(circle at 75% 75%, rgba(139, 69, 19, 0.08) 0%, transparent 40%);
+    animation: rotateOrbs 40s linear infinite;
+    pointer-events: none;
+    z-index: 3;
+  }
+}
+
+.login-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(201, 168, 118, 0.3);
+  padding: 3rem;
+  border-radius: 2rem;
+  box-shadow:
+    $shadow,
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 50px rgba(201, 168, 118, 0.15);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+  animation: slideUp 0.8s ease-out, cardGlow 3s ease-in-out infinite alternate;
+  transform-style: preserve-3d;
+  transition: var(--transition);
+
+  &:hover {
+    transform: translateY(-8px) rotateX(3deg);
+    box-shadow:
+      0 35px 70px -15px rgba(44, 24, 16, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      0 0 80px rgba(201, 168, 118, 0.25);
+  }
+
+  // Borda animada dourada
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 2rem;
+    padding: 2px;
+    background: linear-gradient(45deg, $primary, $secondary, $accent, $primary);
+    background-size: 300% 300%;
+    animation: gradientBorder 4s ease-in-out infinite;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    z-index: -1;
+  }
+
+  // Logo/Badge do restaurante
+  .restaurant-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background: var(--gradient-gold);
+    border-radius: 50%;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 8px 25px rgba(201, 168, 118, 0.3);
+    animation: badgePulse 2s ease-in-out infinite alternate;
+
+    &::before {
+      content: '🍽️';
+      font-size: 2rem;
+    }
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    background: var(--gradient-gold);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    animation: textGlow 2s ease-in-out infinite alternate;
+  }
+
+  p {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    color: rgba(44, 24, 16, 0.8);
+    margin-bottom: 2.5rem;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    input {
+      padding: 1rem 1.5rem;
+      border: 2px solid rgba(201, 168, 118, 0.2);
+      border-radius: 1rem;
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      background: rgba(248, 246, 243, 0.9);
+      backdrop-filter: blur(10px);
+      transition: var(--transition);
+      position: relative;
+      font-weight: 500;
+      color: var(--dark-brown);
+      box-shadow:
+        0 4px 6px -1px rgba(44, 24, 16, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+      &::placeholder {
+        color: rgba(201, 168, 118, 0.7);
+        font-weight: 400;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $primary;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow:
+          0 0 0 4px rgba($primary, 0.15),
+          0 8px 25px -5px rgba($primary, 0.25),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+      }
+
+      &:hover {
+        border-color: rgba($primary, 0.4);
+        transform: translateY(-1px);
+      }
+    }
+
+    button {
+      background: var(--gradient-gold);
+      color: var(--dark-brown);
+      border: none;
+      border-radius: 1rem;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+      box-shadow:
+        0 10px 20px -5px rgba($primary, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.6s ease;
+      }
+
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow:
+          0 15px 30px -5px rgba($primary, 0.5),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+
+        &::before {
+          left: 100%;
+        }
+      }
+
+      &:active {
+        transform: translateY(-1px);
+      }
+    }
+  }
+
+  .register-link {
+    margin-top: 2rem;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+
+    a {
+      color: $primary;
+      text-decoration: none;
+      position: relative;
+      transition: var(--transition);
+      background: var(--gradient-gold);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--gradient-gold);
+        transition: width 0.3s ease;
+      }
+
+      &:hover {
+        transform: translateY(-1px);
+
+        &::after {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  // Elementos decorativos adicionais
+  .decorative-elements {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(45deg, rgba(201, 168, 118, 0.1), rgba(212, 180, 131, 0.05));
+    border-radius: 50%;
+    animation: float 3s ease-in-out infinite;
+    z-index: -1;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 30px;
+      height: 30px;
+      background: rgba(201, 168, 118, 0.2);
+      border-radius: 50%;
+      animation: innerFloat 2s ease-in-out infinite reverse;
+    }
+  }
+}
+
+// Adicionar elementos flutuantes ao wrapper
+.login-wrapper {
+  .floating-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(201, 168, 118, 0.1) 2px, transparent 2px),
+      radial-gradient(circle at 80% 70%, rgba(212, 180, 131, 0.08) 1px, transparent 1px),
+      radial-gradient(circle at 40% 80%, rgba(201, 168, 118, 0.06) 3px, transparent 3px);
+    background-size: 80px 80px, 60px 60px, 120px 120px;
+    animation: floatingParticles 25s linear infinite;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .animated-orbs {
+    position: absolute;
+    top: -30%;
+    left: -30%;
+    width: 160%;
+    height: 160%;
+    background:
+      radial-gradient(circle at 25% 25%, rgba(201, 168, 118, 0.12) 0%, transparent 40%),
+      radial-gradient(circle at 75% 75%, rgba(139, 69, 19, 0.08) 0%, transparent 40%);
+    animation: rotateOrbs 40s linear infinite;
+    pointer-events: none;
+    z-index: 3;
+  }
+}
+
+// 🔄 Animações Temáticas do Restaurante
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px) rotateX(10deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg);
+  }
+}
+
+@keyframes floatingParticles {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-15px) rotate(180deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(0px) rotate(360deg);
+    opacity: 1;
+  }
+}
+
+@keyframes rotateOrbs {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes cardGlow {
+  0% {
+    box-shadow:
+      0 25px 50px -12px rgba(44, 24, 16, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 0 30px rgba(201, 168, 118, 0.15);
+  }
+  100% {
+    box-shadow:
+      0 25px 50px -12px rgba(44, 24, 16, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 0 50px rgba(201, 168, 118, 0.25);
+  }
+}
+
+@keyframes textGlow {
+  0% {
+    filter: drop-shadow(0 0 5px rgba(201, 168, 118, 0.3));
+  }
+  100% {
+    filter: drop-shadow(0 0 15px rgba(201, 168, 118, 0.5)) drop-shadow(0 0 25px rgba(212, 180, 131, 0.3));
+  }
+}
+
+@keyframes gradientBorder {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes badgePulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 8px 25px rgba(201, 168, 118, 0.3);
+  }
+  100% {
+    transform: scale(1.05);
+    box-shadow: 0 12px 35px rgba(201, 168, 118, 0.4);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(180deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(360deg);
+  }
+}
+
+@keyframes innerFloat {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+// 📱 Responsive Design
+@media (max-width: 768px) {
+  .login-wrapper {
+    padding: 1rem;
+  }
+
+  .login-card {
+    padding: 2rem;
+    max-width: 90%;
+
+    h1 {
+      font-size: 2rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+
+    h1 {
+      font-size: 1.8rem;
+    }
+
+    form {
+      gap: 1rem;
+
+      input, button {
+        padding: 0.8rem 1rem;
+      }
+    }
+  }
+}

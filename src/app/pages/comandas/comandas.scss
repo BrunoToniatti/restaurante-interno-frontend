@@ -1,0 +1,635 @@
+.comandas-container {
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8f6f3 0%, #fff8e7 100%);
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  // Header
+  .comandas-header {
+    margin-bottom: 2rem;
+
+    h1 {
+      margin: 0 0 1.5rem 0;
+      font-size: 2.5rem;
+      background: linear-gradient(45deg, #c9a876, #8b4513);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+
+      .stat-card {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(15px);
+        border-radius: 15px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+
+        &:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+          font-size: 2.5rem;
+          opacity: 0.8;
+        }
+
+        .stat-content {
+          h3 {
+            margin: 0 0 0.25rem 0;
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+          }
+
+          .stat-value {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2d3748;
+          }
+        }
+
+        &.open {
+          border-left: 4px solid #10b981;
+        }
+
+        &.revenue {
+          border-left: 4px solid #3b82f6;
+        }
+
+        &.ticket {
+          border-left: 4px solid #8b5cf6;
+        }
+
+        &.items {
+          border-left: 4px solid #f59e0b;
+        }
+      }
+    }
+  }
+
+  // Controls Section
+  .controls-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+    .filters {
+      display: flex;
+      gap: 1rem;
+
+      .filter-select {
+        padding: 0.75rem 1rem;
+        border: 2px solid #c9a876;
+        border-radius: 10px;
+        background: white;
+        font-size: 0.9rem;
+        outline: none;
+        transition: all 0.3s ease;
+
+        &:hover, &:focus {
+          border-color: #8b4513;
+          box-shadow: 0 2px 8px rgba(201, 168, 118, 0.3);
+        }
+      }
+    }
+
+    .new-comanda-btn {
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(45deg, #c9a876, #8b4513);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(201, 168, 118, 0.4);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(201, 168, 118, 0.6);
+      }
+    }
+  }
+
+  // Kitchen Status
+  .kitchen-status {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(15px);
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+    h3 {
+      margin: 0 0 1rem 0;
+      color: #2d3748;
+      font-size: 1.3rem;
+    }
+
+    .kitchen-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+
+      .kitchen-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          transform: scale(1.05);
+        }
+
+        .status-icon {
+          font-size: 2rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .status-count {
+          font-size: 1.5rem;
+          font-weight: 700;
+          margin-bottom: 0.25rem;
+        }
+
+        .status-label {
+          font-size: 0.8rem;
+          color: #666;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+
+        &.pedido {
+          background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+          color: #dc2626;
+        }
+
+        &.preparando {
+          background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05));
+          color: #d97706;
+        }
+
+        &.pronto {
+          background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+          color: #059669;
+        }
+
+        &.entregue {
+          background: linear-gradient(135deg, rgba(107, 114, 128, 0.1), rgba(107, 114, 128, 0.05));
+          color: #4b5563;
+        }
+      }
+    }
+  }
+
+  // Comandas Grid
+  .comandas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
+
+    .comanda-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      border-left: 4px solid;
+
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+      }
+
+      &.status-aberta {
+        border-left-color: #10b981;
+      }
+
+      &.status-fechada {
+        border-left-color: #f59e0b;
+      }
+
+      &.status-paga {
+        border-left-color: #8b5cf6;
+      }
+
+      .comanda-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(201, 168, 118, 0.2);
+
+        .comanda-info {
+          h3 {
+            margin: 0 0 0.25rem 0;
+            font-size: 1.4rem;
+            color: #2d3748;
+            font-weight: 700;
+          }
+
+          .customer-name {
+            margin: 0 0 0.25rem 0;
+            font-size: 1.1rem;
+            color: #c9a876;
+            font-weight: 600;
+          }
+
+          .waiter-name {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #666;
+          }
+        }
+
+        .comanda-status {
+          text-align: right;
+
+          .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+          }
+
+          .open-time {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #666;
+          }
+        }
+      }
+
+      .comanda-items {
+        margin-bottom: 1.5rem;
+
+        .item-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          padding: 1rem;
+          margin-bottom: 0.75rem;
+          background: rgba(248, 246, 243, 0.7);
+          border-radius: 10px;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background: rgba(201, 168, 118, 0.1);
+          }
+
+          .item-info {
+            flex: 1;
+
+            h4 {
+              margin: 0 0 0.25rem 0;
+              color: #2d3748;
+              font-size: 1rem;
+            }
+
+            .item-details {
+              margin: 0 0 0.25rem 0;
+              font-size: 0.85rem;
+              color: #666;
+            }
+
+            .item-obs {
+              margin: 0;
+              font-size: 0.8rem;
+              color: #8b4513;
+              font-style: italic;
+            }
+          }
+
+          .item-status {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.5rem;
+
+            .status-select {
+              padding: 0.5rem;
+              border: none;
+              border-radius: 8px;
+              color: white;
+              font-size: 0.8rem;
+              font-weight: 600;
+              cursor: pointer;
+              outline: none;
+              transition: all 0.3s ease;
+
+              &:hover {
+                transform: scale(1.05);
+              }
+            }
+
+            .remove-item-btn {
+              padding: 0.25rem 0.5rem;
+              background: #ef4444;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 0.8rem;
+              transition: all 0.3s ease;
+
+              &:hover {
+                background: #dc2626;
+                transform: scale(1.1);
+              }
+            }
+          }
+        }
+      }
+
+      .comanda-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(201, 168, 118, 0.2);
+
+        .total-amount {
+          font-size: 1.2rem;
+          color: #2d3748;
+        }
+
+        .comanda-actions {
+          display: flex;
+          gap: 0.5rem;
+
+          button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+
+            &:hover {
+              transform: translateY(-1px);
+            }
+          }
+
+          .add-item-btn {
+            background: #10b981;
+            color: white;
+
+            &:hover {
+              background: #059669;
+            }
+          }
+
+          .close-comanda-btn {
+            background: #f59e0b;
+            color: white;
+
+            &:hover {
+              background: #d97706;
+            }
+          }
+
+          .pay-btn {
+            background: #8b5cf6;
+            color: white;
+
+            &:hover {
+              background: #7c3aed;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Modal Styles
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(201, 168, 118, 0.2);
+
+        h2 {
+          margin: 0;
+          color: #2d3748;
+          font-size: 1.4rem;
+        }
+
+        .close-btn {
+          background: none;
+          border: none;
+          font-size: 1.2rem;
+          cursor: pointer;
+          padding: 0.5rem;
+          border-radius: 50%;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+          }
+        }
+      }
+
+      .modal-body {
+        padding: 1.5rem;
+
+        .form-group {
+          margin-bottom: 1.5rem;
+
+          label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d3748;
+          }
+
+          input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+
+            &:focus {
+              outline: none;
+              border-color: #c9a876;
+              box-shadow: 0 0 0 3px rgba(201, 168, 118, 0.1);
+            }
+          }
+
+          textarea {
+            resize: vertical;
+            min-height: 80px;
+          }
+        }
+      }
+
+      .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding: 1.5rem;
+        border-top: 1px solid rgba(201, 168, 118, 0.2);
+
+        button {
+          padding: 0.75rem 1.5rem;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: 600;
+          transition: all 0.3s ease;
+
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+        }
+
+        .cancel-btn {
+          background: #6b7280;
+          color: white;
+
+          &:hover:not(:disabled) {
+            background: #4b5563;
+          }
+        }
+
+        .save-btn {
+          background: linear-gradient(45deg, #c9a876, #8b4513);
+          color: white;
+
+          &:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(201, 168, 118, 0.4);
+          }
+        }
+      }
+    }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  // Responsive Design
+  @media (max-width: 768px) {
+    padding: 1rem;
+
+    .comandas-header h1 {
+      font-size: 2rem;
+    }
+
+    .controls-section {
+      flex-direction: column;
+      gap: 1rem;
+
+      .filters {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .new-comanda-btn {
+        width: 100%;
+      }
+    }
+
+    .comandas-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .modal-overlay .modal-content {
+      width: 95%;
+      margin: 1rem;
+    }
+
+    .comanda-footer {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: stretch;
+
+      .comanda-actions {
+        justify-content: center;
+      }
+    }
+
+    .item-row {
+      flex-direction: column;
+      gap: 1rem;
+
+      .item-status {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+  }
+}

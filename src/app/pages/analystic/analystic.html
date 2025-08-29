@@ -1,0 +1,285 @@
+<div class="analytics-container">
+  <!-- Header com controles -->
+  <div class="analytics-header">
+    <h1>📊 Analytics Dashboard</h1>
+    <div class="controls">
+      <select [(ngModel)]="selectedPeriod" (change)="onPeriodChange()" class="period-select">
+        <option value="today">Hoje</option>
+        <option value="week">Esta Semana</option>
+        <option value="month">Este Mês</option>
+        <option value="quarter">Trimestre</option>
+        <option value="year">Ano</option>
+      </select>
+      <button class="export-btn" (click)="exportData()">📤 Exportar</button>
+    </div>
+  </div>
+
+  <div *ngIf="analytics" class="analytics-content">
+    <!-- KPIs Principais -->
+    <div class="kpi-grid">
+      <div class="kpi-card revenue">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-content">
+          <h3>Receita Total</h3>
+          <p class="kpi-value">{{ analytics.totalRevenue | currency:'BRL':'symbol':'1.2-2' }}</p>
+          <span class="kpi-growth" [style.color]="getGrowthColor(analytics.monthlyGrowth)">
+            {{ getGrowthIcon(analytics.monthlyGrowth) }} +{{ analytics.monthlyGrowth }}%
+          </span>
+        </div>
+      </div>
+
+      <div class="kpi-card customers">
+        <div class="kpi-icon">👥</div>
+        <div class="kpi-content">
+          <h3>Total de Clientes</h3>
+          <p class="kpi-value">{{ analytics.totalCustomers | number }}</p>
+          <span class="kpi-detail">{{ analytics.newCustomers }} novos</span>
+        </div>
+      </div>
+
+      <div class="kpi-card orders">
+        <div class="kpi-icon">📋</div>
+        <div class="kpi-content">
+          <h3>Pedidos</h3>
+          <p class="kpi-value">{{ analytics.totalOrders | number }}</p>
+          <span class="kpi-detail">Ticket médio: {{ analytics.averageTicket | currency:'BRL':'symbol':'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <div class="kpi-card satisfaction">
+        <div class="kpi-icon">⭐</div>
+        <div class="kpi-content">
+          <h3>Satisfação</h3>
+          <p class="kpi-value">{{ analytics.customerSatisfaction }}/5.0</p>
+          <span class="kpi-detail">{{ analytics.customerSatisfaction * 20 }}% aprovação</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos e Métricas -->
+    <div class="charts-grid">
+      <!-- Gráfico de Revenue Semanal -->
+      <div class="chart-card">
+        <h3>📈 Performance Semanal</h3>
+        <div class="metric-selector">
+          <label>
+            <input type="radio" [(ngModel)]="selectedMetric" value="revenue" (change)="onMetricChange()"> Receita
+          </label>
+          <label>
+            <input type="radio" [(ngModel)]="selectedMetric" value="orders" (change)="onMetricChange()"> Pedidos
+          </label>
+          <label>
+            <input type="radio" [(ngModel)]="selectedMetric" value="customers" (change)="onMetricChange()"> Clientes
+          </label>
+        </div>
+        <div class="simple-chart">
+          <div class="chart-bars">
+            <div *ngFor="let data of analytics.weeklyData; let i = index" class="bar-container">
+              <div class="bar"
+                   [style.height.%]="getBarHeight(selectedMetric === 'revenue' ? data.revenue : selectedMetric === 'orders' ? data.orders : data.customers,
+                                                  getMaxValue(selectedMetric === 'revenue' ? chartData.revenue : selectedMetric === 'orders' ? chartData.orders : chartData.customers))">
+                <span class="bar-value">
+                  {{ selectedMetric === 'revenue' ? (data.revenue | currency:'BRL':'symbol':'1.0-0') :
+                     selectedMetric === 'orders' ? data.orders : data.customers }}
+                </span>
+              </div>
+              <label>{{ data.day }}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance por Horário -->
+      <div class="chart-card">
+        <h3>🕐 Performance por Horário</h3>
+        <div class="hourly-chart">
+          <div *ngFor="let hour of analytics.hourlyData" class="hour-bar">
+            <div class="hour-info">
+              <span class="hour-time">{{ hour.hour }}</span>
+              <span class="hour-orders">{{ hour.orders }} pedidos</span>
+            </div>
+            <div class="hour-progress">
+              <div class="progress-bar"
+                   [style.width.%]="getBarHeight(hour.orders, 156)">
+              </div>
+            </div>
+            <span class="hour-revenue">{{ hour.revenue | currency:'BRL':'symbol':'1.0-0' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance de Pratos e Categorias -->
+    <div class="performance-grid">
+      <!-- Top Pratos -->
+      <div class="performance-card">
+        <h3>🍽️ Pratos Mais Populares</h3>
+        <div class="dishes-list">
+          <div *ngFor="let dish of analytics.popularDishes; let i = index" class="dish-item">
+            <div class="dish-rank">{{ i + 1 }}</div>
+            <div class="dish-info">
+              <h4>{{ dish.name }}</h4>
+              <div class="dish-stats">
+                <span>{{ dish.orders }} pedidos</span>
+                <span>{{ dish.revenue | currency:'BRL':'symbol':'1.0-0' }}</span>
+                <span [class]="getPerformanceLevel(dish.popularity, 100)">{{ dish.popularity }}% pop.</span>
+              </div>
+            </div>
+            <div class="dish-margin">
+              <span class="margin-value">{{ dish.profitMargin }}%</span>
+              <div class="margin-bar">
+                <div [style.width.%]="dish.profitMargin"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categorias -->
+      <div class="performance-card">
+        <h3>📊 Performance por Categoria</h3>
+        <div class="categories-chart">
+          <div *ngFor="let category of analytics.categories" class="category-item">
+            <div class="category-info">
+              <h4>{{ category.name }}</h4>
+              <span class="category-percentage">{{ category.percentage }}%</span>
+            </div>
+            <div class="category-bar">
+              <div class="bar-fill" [style.width.%]="category.percentage"></div>
+            </div>
+            <div class="category-stats">
+              <span>{{ category.orders }} pedidos</span>
+              <span>{{ category.revenue | currency:'BRL':'symbol':'1.0-0' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Métricas Operacionais -->
+    <div class="operational-metrics">
+      <h3>⚙️ Métricas Operacionais</h3>
+      <div class="metrics-grid">
+        <div class="metric-item">
+          <div class="metric-icon">⏱️</div>
+          <div class="metric-content">
+            <h4>Tempo Médio de Preparo</h4>
+            <p class="metric-value">{{ analytics.averageOrderTime }} min</p>
+            <div class="metric-indicator" [class]="analytics.averageOrderTime <= 30 ? 'good' : analytics.averageOrderTime <= 45 ? 'average' : 'poor'">
+              {{ analytics.averageOrderTime <= 30 ? 'Excelente' : analytics.averageOrderTime <= 45 ? 'Bom' : 'Atenção' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-item">
+          <div class="metric-icon">🪑</div>
+          <div class="metric-content">
+            <h4>Utilização de Mesas</h4>
+            <p class="metric-value">{{ analytics.tableUtilization }}%</p>
+            <div class="progress-indicator">
+              <div class="progress-fill" [style.width.%]="analytics.tableUtilization"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-item">
+          <div class="metric-icon">👨‍🍳</div>
+          <div class="metric-content">
+            <h4>Eficiência da Equipe</h4>
+            <p class="metric-value">{{ analytics.staffEfficiency }}%</p>
+            <div class="progress-indicator">
+              <div class="progress-fill" [style.width.%]="analytics.staffEfficiency"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="metric-item">
+          <div class="metric-icon">💹</div>
+          <div class="metric-content">
+            <h4>Margem de Lucro</h4>
+            <p class="metric-value">{{ analytics.profitMargin }}%</p>
+            <div class="metric-indicator" [class]="analytics.profitMargin >= 30 ? 'excellent' : analytics.profitMargin >= 20 ? 'good' : 'average'">
+              {{ analytics.profitMargin >= 30 ? 'Excelente' : analytics.profitMargin >= 20 ? 'Bom' : 'Atenção' }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Crescimento Mensal -->
+    <div class="growth-section">
+      <h3>📊 Evolução Mensal</h3>
+      <div class="monthly-chart">
+        <div *ngFor="let month of analytics.monthlyData" class="month-item">
+          <div class="month-header">
+            <h4>{{ month.month }}</h4>
+            <span class="growth-badge" [style.background-color]="getGrowthColor(month.growth)">
+              {{ getGrowthIcon(month.growth) }} {{ month.growth }}%
+            </span>
+          </div>
+          <div class="month-stats">
+            <div class="stat">
+              <span class="label">Receita</span>
+              <span class="value">{{ month.revenue | currency:'BRL':'symbol':'1.0-0' }}</span>
+            </div>
+            <div class="stat">
+              <span class="label">Pedidos</span>
+              <span class="value">{{ month.orders | number }}</span>
+            </div>
+            <div class="stat">
+              <span class="label">Clientes</span>
+              <span class="value">{{ month.customers | number }}</span>
+            </div>
+          </div>
+          <div class="month-bar">
+            <div [style.height.%]="getBarHeight(month.revenue, 401234)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Insights e Alertas -->
+    <div class="insights-section">
+      <h3>💡 Insights e Alertas</h3>
+      <div class="insights-grid">
+        <div class="insight-card success">
+          <div class="insight-icon">🎯</div>
+          <div class="insight-content">
+            <h4>Performance Excepcional</h4>
+            <p>O Risotto de Cogumelos Trufados está com 95% de popularidade e alta margem de lucro!</p>
+          </div>
+        </div>
+
+        <div class="insight-card warning">
+          <div class="insight-icon">⚠️</div>
+          <div class="insight-content">
+            <h4>Oportunidade</h4>
+            <p>Horário das 15h-18h com baixo movimento. Considere ofertas especiais para happy hour.</p>
+          </div>
+        </div>
+
+        <div class="insight-card info">
+          <div class="insight-icon">📈</div>
+          <div class="insight-content">
+            <h4>Tendência Positiva</h4>
+            <p>Crescimento consistente de {{ analytics.monthlyGrowth }}% no último mês. Continue assim!</p>
+          </div>
+        </div>
+
+        <div class="insight-card success">
+          <div class="insight-icon">🌱</div>
+          <div class="insight-content">
+            <h4>Sustentabilidade</h4>
+            <p>Pratos veganos representam 15% das vendas com ótima margem de lucro.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="!analytics" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Carregando dados analíticos...</p>
+  </div>
+</div>
